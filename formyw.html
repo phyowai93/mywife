@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title> မိန်းအတွက်ပေးစာ 💌</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;600;700&display=swap');
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Noto Sans Myanmar', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ffe0ec 0%, #ffc2d1 50%, #ffb3c6 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      padding: 20px;
+      color: #4a154b;
+    }
+
+    /* နောက်ခံ အသည်းပုံလေးများ လွင့်နေစေရန် */
+    .bg-hearts {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-heart {
+      position: absolute;
+      bottom: -50px;
+      font-size: 20px;
+      opacity: 0.5;
+      animation: floatUp linear infinite;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+      100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* သီချင်း ဖွင့်/ပိတ် ခလုတ် */
+    .music-btn {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.85);
+      border: 2px solid #ff4d6d;
+      color: #ff4d6d;
+      padding: 8px 14px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+
+    /* အဆင့်တစ်ခုချင်းစီအတွက် Card */
+    .stage {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border-radius: 24px;
+      padding: 30px 24px;
+      text-align: center;
+      box-shadow: 0 15px 35px rgba(255, 77, 109, 0.25);
+      display: none;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .stage.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* အဆင့် ၁: စာအိတ်ဒီဇိုင်း */
+    .envelope-wrapper {
+      cursor: pointer;
+      margin: 20px auto;
+      width: 220px;
+      height: 150px;
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+
+    .envelope-wrapper:hover {
+      transform: scale(1.05);
+    }
+
+    .envelope {
+      width: 100%;
+      height: 100%;
+      background: #ff758f;
+      border-radius: 0 0 14px 14px;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(255, 77, 109, 0.35);
+    }
+
+    .envelope::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-left: 110px solid transparent;
+      border-right: 110px solid transparent;
+      border-top: 85px solid #ff4d6d;
+      transform-origin: top;
+      transition: transform 0.5s ease;
+      z-index: 3;
+    }
+
+    .envelope.open::before {
+      transform: rotateX(180deg);
+    }
+
+    .envelope-heart {
+      position: absolute;
+      top: 55%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 38px;
+      z-index: 4;
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.18); }
+    }
+
+    /* ချစ်စာ */
+    .letter-box {
+      text-align: left;
+      background: #fff5f7;
+      border: 1.5px dashed #ff8fa3;
+      border-radius: 16px;
+      padding: 18px;
+      margin: 16px 0 22px;
+      line-height: 1.8;
+      font-size: 15px;
+      color: #590d22;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    /* အဆင့် ၂: အမှတ်တရ ဓာတ်ပုံများ */
+    .photo-frame {
+      width: 100%;
+      height: 260px;
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 16px 0;
+      border: 4px solid #fff;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      background: #ffe5ec;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-caption {
+      font-size: 15px;
+      color: #590d22;
+      margin-bottom: 18px;
+      min-height: 45px;
+      line-height: 1.6;
+    }
+
+    .counter-badge {
+      font-size: 13px;
+      color: #ff4d6d;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    /* အဆင့် ၃: မေးခွန်း ၃ ခု */
+    .quiz-options {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin: 22px 0 18px;
+      flex-wrap: wrap;
+    }
+
+    .option-btn {
+      background: #fff0f3;
+      color: #c9184a;
+      border: 2px solid #ff758f;
+      padding: 12px 24px;
+      border-radius: 20px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      min-width: 120px;
+    }
+
+    .option-btn:hover {
+      background: #ff4d6d;
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .option-btn.selected {
+      background: #ff4d6d;
+      color: #fff;
+      border-color: #ff4d6d;
+    }
+
+    .quiz-reply {
+      background: #fff5f7;
+      border: 1.5px solid #ffb3c6;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 16px 0 20px;
+      font-size: 15px;
+      line-height: 1.7;
+      color: #590d22;
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    /* အဆင့် ၄: စာတန်းတစ်ကြောင်း */
+    .transition-line {
+      font-size: 19px;
+      font-weight: 600;
+      color: #c9184a;
+      line-height: 1.8;
+      margin: 24px 0 28px;
+    }
+
+    /* ခလုတ်များ */
+    .btn {
+      background: #ff4d6d;
+      color: #fff;
+      border: none;
+      padding: 12px 26px;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(255, 77, 109, 0.35);
+      transition: all 0.25s ease;
+    }
+
+    .btn:hover {
+      background: #e01e37;
+      transform: translateY(-2px);
+    }
+
+    /* အဆင့် ၅: လက်ထပ်ခွင့်တောင်းခြင်း ခလုတ်များ */
+    .proposal-buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-top: 26px;
+      flex-wrap: wrap;
+      min-height: 70px;
+    }
+
+    #yesBtn {
+      background: #2ec4b6;
+      box-shadow: 0 6px 16px rgba(46, 196, 182, 0.4);
+      transition: transform 0.25s ease;
+    }
+
+    #yesBtn:hover {
+      background: #20a497;
+    }
+
+    #noBtn {
+      background: #ff4d6d;
+      position: relative;
+      z-index: 50;
+    }
+
+    h1 {
+      font-size: 22px;
+      color: #c9184a;
+      margin-bottom: 10px;
+    }
+
+    p.subtitle {
+      font-size: 14px;
+      color: #800f2f;
+      margin-bottom: 14px;
+    }
+
+    .big-emoji {
+      font-size: 64px;
+      margin-bottom: 10px;
+      animation: bounce 1.2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* မီးပန်း (Confetti) Canvas */
+    #confettiCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- နောက်ခံ အသည်းပုံလေးများ -->
+  <div class="bg-hearts" id="bgHearts"></div>
+
+  <!-- မီးပန်း Canvas -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- နောက်ခံသီချင်း -->
+  <audio id="bgMusic" loop>
+    <source src="song.mp3" type="audio/mpeg" />
+  </audio>
+  <button class="music-btn" id="musicBtn" onclick="toggleMusic()">🎵 သီချင်းပိတ်ရန်</button>
+
+  <!-- ================= အဆင့် ၁: စာအိတ် ================= -->
+  <div class="stage active" id="stage1">
+    <h1>မိန်းအတွက် ပေးစာ 💌</h1>
+    <p class="subtitle">စာအိတ်လေးကို  ဖွင့်ကြည့်ပါဦး</p>
+
+    <div class="envelope-wrapper" onclick="openEnvelope()">
+      <div class="envelope" id="envelope">
+        <div class="envelope-heart">❤️</div>
+      </div>
+    </div>
+
+    <p style="font-size: 13px; color: #a4133c;">(သီချင်းလေးနားထောင်ကြည့်ဦးနော် 🎶)</p>
+  </div>
+
+  <!-- ================= အဆင့် ၁ (ခ): ချစ်စာ ================= -->
+  <div class="stage" id="stageLetter">
+    <!-- ချစ်သူနာမည် ပြင်ရန် -->
+    <h1>ချစ်ရတဲ့ [မိန်း] ရေ...</h1>
+
+    <!-- ချစ်စာ စာသား ပြင်ရန် -->
+    <div class="letter-box">
+      မိန်းနဲ့ စတွေ့ခဲ့တဲ့နေ့ကစပြီး ကိုယ့်ဘဝက သိပ်ကို လှပခဲ့ရတယ်။
+      <br /><br />
+      ပျော်ရွှင်စရာနေ့တွေပဲဖြစ်ဖြစ်၊ ခက်ခဲတဲ့နေ့တွေပဲဖြစ်ဖြစ် အမြဲတမ်း ကိုယ့်ဘေးနားမှာ ရှိနေပေးခဲ့လို့ ကျေးဇူးအများကြီးတင်ပါတယ်။
+      <br /><br />
+      အခု ကိုယ်တို့နှစ်ယောက်ရဲ့ အမှတ်တရလေးတွေကို ပြန်ကြည့်ရအောင်နော်... ❤️
+    </div>
+
+    <button class="btn" onclick="goToStage('stageMemories')">အမှတ်တရလေးများ 📸</button>
+  </div>
+
+  <!-- ================= အဆင့် ၂: အမှတ်တရ ဓာတ်ပုံ ၇ ပုံ ================= -->
+  <div class="stage" id="stageMemories">
+    <h1>ကိုတို့ရဲ့ အမှတ်တရများ 💕</h1>
+    <div class="counter-badge" id="photoCounter">1 / 7</div>
+
+    <div class="photo-frame">
+      <img id="memoryImg" src="" alt="Memory Photo" />
+    </div>
+
+    <div class="photo-caption" id="memoryCaption"></div>
+
+    <button class="btn" id="nextPhotoBtn" onclick="nextPhoto()">နောက်တစ်ပုံ ➔</button>
+  </div>
+
+  <!-- ================= အဆင့် ၃: မေးခွန်း ၃ ခု ================= -->
+  <div class="stage" id="stageQuiz">
+    <div class="counter-badge" id="quizCounter">မေးခွန်း 1 / 3</div>
+    <h1 id="quizQuestion"></h1>
+
+    <div class="quiz-options" id="quizOptions">
+      <button class="option-btn" id="optA" onclick="selectOption(0)"></button>
+      <button class="option-btn" id="optB" onclick="selectOption(1)"></button>
+    </div>
+
+    <div class="quiz-reply" id="quizReply"></div>
+
+    <button class="btn" id="nextQuizBtn" style="display: none;" onclick="nextQuiz()">နောက်မေးခွန်း ➔</button>
+  </div>
+
+  <!-- ================= အဆင့် ၄: လက်ထပ်ခွင့်မတောင်းခင် စာတန်းတစ်ကြောင်း ================= -->
+  <div class="stage" id="stageTransition">
+    <div class="big-emoji">💖</div>
+    <!-- ဒီနေရာက စာတန်းတစ်ကြောင်းကို ကိုယ်ကြိုက်သလို ပြင်နိုင်ပါတယ် -->
+    <p class="transition-line">
+      "ဘာတွေပဲ ရွေးရွေး... ကိုယ့်ဘဝမှာ အမြဲတမ်း ရွေးချယ်သွားချင်တာက မင်းတစ်ယောက်တည်းပါပဲ ❤️"
+    </p>
+    <button class="btn" onclick="goToStage('stageProposal')">ဆက်ဖတ်မယ် ➔</button>
+  </div>
+
+  <!-- ================= အဆင့် ၅: လက်ထပ်ခွင့်တောင်းခြင်း ================= -->
+  <div class="stage" id="stageProposal">
+    <div class="big-emoji">💍</div>
+    <!-- မေးခွန်း စာသား ပြင်ရန် -->
+    <h1>[မိန်း] ရေ...<br />ကိုယ်နဲ့ လက်ထပ်မလား?</h1>
+    <p class="subtitle">နောင်ဘဝထိတိုင် လက်တွဲသွားချင်လို့ပါ ❤️</p>
+
+    <div class="proposal-buttons">
+      <button class="btn" id="yesBtn" onclick="sayYes()">လက်ထပ်မယ် 💍</button>
+      <button class="btn" id="noBtn">မလက်ထပ်ဘူး 😜</button>
+    </div>
+  </div>
+
+  <!-- ================= အဆင့် ၆: Yes နှိပ်ပြီး ဂုဏ်ပြုခြင်း ================= -->
+  <div class="stage" id="stageSuccess">
+    <div class="big-emoji">🥰🎉💍</div>
+    <h1>YAY!! အရမ်းချစ်တယ် ❤️</h1>
+    <p class="subtitle" style="font-size: 16px; line-height: 1.8; margin-top: 12px;">
+      ကိုယ့်ရဲ့ လက်ထပ်ခွင့်ကို လက်ခံပေးလို့ ကျေးဇူးအများကြီးတင်ပါတယ်။<br />
+      တစ်သက်လုံး ပျော်ရွှင်အောင် ထားပါ့မယ်လို့ ကတိပေးပါတယ်! 💖
+    </p>
+  </div>
+
+  <script>
+    // ==========================================
+    // ၁။ ဓာတ်ပုံ ၇ ပုံနှင့် စာတိုများ ပြင်ရန်နေရာ
+    // ==========================================
+    const memories = [
+      { img: "photo1.jpg", caption: "အမှတ်တရ ပုံ (၁) စာသား 🌸" },
+      { img: "photo2.jpg", caption: "အမှတ်တရ ပုံ (၂) စာသား ✨" },
+      { img: "photo3.jpg", caption: "အမှတ်တရ ပုံ (၃) စာသား 💕" },
+      { img: "photo4.jpg", caption: "အမှတ်တရ ပုံ (၄) စာသား 🥰" },
+      { img: "photo5.jpg", caption: "အမှတ်တရ ပုံ (၅) စာသား 🌷" },
+      { img: "photo6.jpg", caption: "အမှတ်တရ ပုံ (၆) စာသား 💖" },
+      { img: "photo7.jpg", caption: "အမှတ်တရ ပုံ (၇) စာသား ❤️" }
+    ];
+
+    // ==========================================
+    // ၂။ မေးခွန်း ၃ ခုနှင့် အဖြေတစ်ခုချင်းစီ ပြင်ရန်နေရာ
+    // ==========================================
+    const quizzes = [
+      {
+        question: "ဆင်နဲ့ ဆိတ် ဘယ်ကောင်ကြိုက်လဲ?",
+        options: ["🐘 ဆင်", "🐐 ဆိတ်"],
+        replies: [
+          "ဆင်ကိုရွေးတယ်ဆိုတော့ အခုလက်ရှိဆင်ခန္ဓာကြီးဖြစ်နေလို့ 🐘❤️",
+          "ဆိတ်ကိုရွေးတယ်ဆိုတော့ အနာဂတ်မှာခန္ဓာကိုယ်သွယ်သွယ်လျလျလေးဖြစ်မှာပါ 🐐💕"
+        ]
+      },
+      {
+        question: "နေနဲ့ည ဘယ်ဟာကိုကြိုက်လဲ?",
+        options: ["☀️ နေ", "🌙 ည"],
+        replies: [
+          "နေ့ခင်းကိုရွေးတယ်ဆိုတော့ နေ့ဘက်မှာကိုချစ်တင်းနှောကြမယ် ☀️✨",
+          "ညဘက်ကိုရွေးတယ်ဆိုတော့ တညလုံးချစ်ရည်လူးကြမယ် 🌙💖"
+        ]
+      },
+      {
+        question: "ကျား နဲ့ နွား ဘယ်ကောင်ကို ချစ်လဲ?",
+        options: ["🐯 ကျား", "🐮 နွား"],
+        replies: [
+          "ကျားကိုရွေးတယ်ဆိုတော့ ကျားကြီးရေသောက်နဲ့ချစ်မယ် 🐯🔥",
+          "နွားကိုရွေးတယ်ဆိုတော့ cowgirl လေးလုပ်ခိုင်းမယ် 🐮❤️"
+        ]
+      }
+    ];
+
+    // No ခလုတ်ကို နှိပ်ဖို့ကြိုးစားတိုင်း ပြောင်းမယ့် စာသားများ
+    const noTexts = [
+      "သေချာလား? 🥺",
+      "ထပ်စဉ်းစားပါဦး 😝",
+      "မရဘူးနော်! 😜",
+      "မိအောင်ဖမ်း 😜",
+      "Yes ပဲ နှိပ်လိုက်ပါ 🥰",
+      "ပြေးပြီနော် 🏃‍♂️💨"
+    ];
+
+    let currentPhoto = 0;
+    let currentQuiz = 0;
+    let noCount = 0;
+    let yesScale = 1;
+    let isMusicPlaying = false;
+
+    const bgMusic = document.getElementById("bgMusic");
+    const musicBtn = document.getElementById("musicBtn");
+
+    // နောက်ခံ အသည်းပုံလေးများ ဖန်တီးခြင်း
+    function createBgHearts() {
+      const container = document.getElementById("bgHearts");
+      const hearts = ["❤️", "💖", "💕", "🌸", "💗"];
+      for (let i = 0; i < 18; i++) {
+        const span = document.createElement("span");
+        span.className = "bg-heart";
+        span.innerText = hearts[Math.floor(Math.random() * hearts.length)];
+        span.style.left = Math.random() * 100 + "vw";
+        span.style.animationDuration = (Math.random() * 6 + 6) + "s";
+        span.style.animationDelay = (Math.random() * 5) + "s";
+        span.style.fontSize = (Math.random() * 16 + 14) + "px";
+        container.appendChild(span);
+      }
+    }
+    createBgHearts();
+
+    // အဆင့်ပြောင်းခြင်း
+    function goToStage(stageId) {
+      document.querySelectorAll(".stage").forEach(el => el.classList.remove("active"));
+      document.getElementById(stageId).classList.add("active");
+      if (stageId === "stageMemories") {
+        loadPhoto();
+      } else if (stageId === "stageQuiz") {
+        loadQuiz();
+      }
+    }
+
+    // အဆင့် ၁: စာအိတ်ဖွင့်ခြင်း + သီချင်းစဖွင့်ခြင်း
+    function openEnvelope() {
+      document.getElementById("envelope").classList.add("open");
+      musicBtn.style.display = "block";
+      bgMusic.play().then(() => {
+        isMusicPlaying = true;
+        musicBtn.innerText = "🎵 သီချင်းပိတ်ရန်";
+      }).catch(() => {
+        musicBtn.innerText = "🔇 သီချင်းဖွင့်ရန်";
+      });
+
+      setTimeout(() => {
+        goToStage("stageLetter");
+      }, 650);
+    }
+
+    function toggleMusic() {
+      if (isMusicPlaying) {
+        bgMusic.pause();
+        isMusicPlaying = false;
+        musicBtn.innerText = "🔇 သီချင်းဖွင့်ရန်";
+      } else {
+        bgMusic.play().catch(() => {});
+        isMusicPlaying = true;
+        musicBtn.innerText = "🎵 သီချင်းပိတ်ရန်";
+      }
+    }
+
+    // အဆင့် ၂: ဓာတ်ပုံ ၇ ပုံ ပြသခြင်း
+    function loadPhoto() {
+      const item = memories[currentPhoto];
+      document.getElementById("memoryImg").src = item.img;
+      document.getElementById("memoryCaption").innerText = item.caption;
+      document.getElementById("photoCounter").innerText = (currentPhoto + 1) + " / " + memories.length;
+
+      const btn = document.getElementById("nextPhotoBtn");
+      if (currentPhoto === memories.length - 1) {
+        btn.innerText = "မေးခွန်းလေးတွေ ဖြေမယ် ➔";
+      } else {
+        btn.innerText = "နောက်တစ်ပုံ ➔";
+      }
+    }
+
+    function nextPhoto() {
+      if (currentPhoto < memories.length - 1) {
+        currentPhoto++;
+        loadPhoto();
+      } else {
+        goToStage("stageQuiz");
+      }
+    }
+
+    // အဆင့် ၃: မေးခွန်း ၃ ခု ပြသခြင်း
+    function loadQuiz() {
+      const q = quizzes[currentQuiz];
+      document.getElementById("quizCounter").innerText = "မေးခွန်း " + (currentQuiz + 1) + " / " + quizzes.length;
+      document.getElementById("quizQuestion").innerText = q.question;
+
+      const optA = document.getElementById("optA");
+      const optB = document.getElementById("optB");
+      optA.innerText = q.options[0];
+      optB.innerText = q.options[1];
+      optA.classList.remove("selected");
+      optB.classList.remove("selected");
+
+      document.getElementById("quizReply").style.display = "none";
+      document.getElementById("nextQuizBtn").style.display = "none";
+    }
+
+    function selectOption(index) {
+      const q = quizzes[currentQuiz];
+      const optA = document.getElementById("optA");
+      const optB = document.getElementById("optB");
+
+      optA.classList.toggle("selected", index === 0);
+      optB.classList.toggle("selected", index === 1);
+
+      const replyBox = document.getElementById("quizReply");
+      replyBox.innerText = q.replies[index];
+      replyBox.style.display = "block";
+
+      const nextBtn = document.getElementById("nextQuizBtn");
+      nextBtn.innerText = (currentQuiz === quizzes.length - 1) ? "ဆက်သွားမယ် ➔" : "နောက်မေးခွန်း ➔";
+      nextBtn.style.display = "inline-block";
+    }
+
+    function nextQuiz() {
+      if (currentQuiz < quizzes.length - 1) {
+        currentQuiz++;
+        loadQuiz();
+      } else {
+        goToStage("stageTransition");
+      }
+    }
+
+    // အဆင့် ၅: No ခလုတ် ထွက်ပြေးခြင်း + Yes ခလုတ် ကြီးလာခြင်း
+    const noBtn = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
+
+    function moveNoButton(e) {
+      if (e) e.preventDefault();
+
+      const padding = 20;
+      const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+      const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+
+      const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+      const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+
+      noBtn.style.position = "fixed";
+      noBtn.style.left = randomX + "px";
+      noBtn.style.top = randomY + "px";
+
+      noBtn.innerText = noTexts[noCount % noTexts.length];
+      noCount++;
+      yesScale = Math.min(yesScale + 0.15, 2.2);
+      yesBtn.style.transform = `scale(${yesScale})`;
+    }
+
+    noBtn.addEventListener("mouseover", moveNoButton);
+    noBtn.addEventListener("touchstart", moveNoButton, { passive: false });
+    noBtn.addEventListener("click", moveNoButton);
+
+    // အဆင့် ၆: Yes နှိပ်ခြင်း + မီးပန်းဖောက်ခြင်း
+    function sayYes() {
+      noBtn.style.display = "none";
+      goToStage("stageSuccess");
+      startConfetti();
+    }
+
+    // မီးပန်း (Confetti) Effect
+    function startConfetti() {
+      const canvas = document.getElementById("confettiCanvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const colors = ["#ff4d6d", "#ff8fa3", "#2ec4b6", "#ffd166", "#9b5de5", "#ffffff"];
+      const particles = [];
+
+      for (let i = 0; i < 150; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          size: Math.random() * 8 + 5,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          speedY: Math.random() * 3 + 2,
+          speedX: Math.random() * 2 - 1,
+          rotation: Math.random() * 360,
+          rotSpeed: Math.random() * 6 - 3
+        });
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          p.y += p.speedY;
+          p.x += p.speedX;
+          p.rotation += p.rotSpeed;
+
+          if (p.y > canvas.height) {
+            p.y = -20;
+            p.x = Math.random() * canvas.width;
+          }
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+          ctx.restore();
+        });
+        requestAnimationFrame(animate);
+      }
+      animate();
+    }
+  </script>
+</body>
+</html>
